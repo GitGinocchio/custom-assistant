@@ -7,7 +7,7 @@ app = Flask(__name__,static_folder='',template_folder='')
 
 sections = []
 
-def save_data(enabled, name,patterns,instructions):
+def save_data(enabled,name,patterns,autorun,args,shell,instructions,post_args):
     try:
         os.mkdir(r"../commands/{}".format(name))
         jsonutil = jsonutils(r"../commands/{}/config.json".format(name))
@@ -19,10 +19,10 @@ def save_data(enabled, name,patterns,instructions):
 
         data = {
             'qualified': enabled,
-            'shell' : True,
-            'autorun' : "cmd.bat",
-            'args' : [],
-            'post-commands' : [],
+            'shell' : shell,
+            'autorun' : autorun,
+            'args' : args,
+            'post-commands' : post_args,
             'patterns' : patterns
         }
         jsonutil.save_to_file(data)
@@ -46,9 +46,13 @@ def add():
         cmd_enabled = request.form.get('enabled',type=bool)
         cmd_name = request.form.get('command-name',type=str).strip()
         cmd_patterns = request.form.get('patterns',type=str).splitlines()
+        autorun = request.form.get('autorun',type=str).strip()
+        args = request.form.get('args',type=str).strip()
+        shell = request.form.get('shell',type=bool)
         cmd_instructions = request.form.get('instructions',type=str).splitlines(True)
+        pargs = request.form.get('pargs',type=str).strip()
 
-        if save_data(cmd_enabled,cmd_name,cmd_patterns,cmd_instructions) == 0:
+        if save_data(cmd_enabled,cmd_name,cmd_patterns,autorun,args,shell,cmd_instructions,pargs) == 0:
             print('saved')
         else:
             print('not saved')

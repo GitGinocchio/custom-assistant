@@ -35,13 +35,33 @@
 
 
             <div class="form-group">
-                <label for="autorun">*Autorun:</label>
+                <label for="autorun">*Auto Esecuzione:</label>
                 <input type="text" id="autorun" name="autorun" class='input-name' placeholder="file .* che verra\' avviato all\'attivazione del comando" value="cmd.bat">
             </div>
 
             <div class="form-group">
+                <label for="args">Argomenti:</label>
+                <input type="text" id="args" name="args" class='input-name' placeholder="argomenti che verranno passati al file in auto esecuzione." value="">
+            </div>
+            
+            <div class="radio-container">
+                <label>Shell:</label>
+                <input type="radio" id="radio-1" name="shell" value="True">
+                <label for="radio-1">Abilitato</label>
+    
+                <input type="radio" id="radio-2" name="shell" value="False" checked>
+                <label for="radio-2">Disabilitato</label>
+            </div>
+
+
+            <div class="form-group">
                 <label for="instructions">Istruzioni:</label>
                 <textarea id="instructions" name="instructions" placeholder="Inserisci le istruzioni del file 'cmd.bat' che verranno eseguite" value=""></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pargs">Argomenti in esecuzione:</label>
+                <input type="text" id="pargs" name="pargs" class='input-name' placeholder="argomenti che verranno passati al file durante la sua esecuzione." value="">
             </div>
 
             
@@ -55,12 +75,13 @@
             document.getElementById("data").addEventListener("submit", function(event) {
                 var commandNameInput = document.getElementById("command-name");
                 var patternsInput = document.getElementById("patterns");
+                var autorun = document.getElementById("autorun");
                 var instructionsInput = document.getElementById("instructions");
                 var invalidChars = /[\/;:\[\]()!@#$%^*]/g;
 
-                if (commandNameInput.value === "" || patternsInput.value === "") {
+                if (commandNameInput.value === "" || patternsInput.value === "" || autorun.value === "") {
                     event.preventDefault(); // Impedisce l'invio del modulo
-                    alert("Tutti i campi devono essere compilati");
+                    alert("Tutti i campi richiesti (*) devono essere compilati");
                 } else if (commandNameInput.value.match(invalidChars) || patternsInput.value.match(invalidChars)) {
                     event.preventDefault(); // Impedisce l'invio del modulo
                     alert("I caratteri speciali come / ; : [ ] ( ) ! @ # $ % ^ * sono accettati solo nelle istruzioni!");}

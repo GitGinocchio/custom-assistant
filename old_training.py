@@ -19,8 +19,7 @@ def clearConsole():
     else:
         os.system('clear')
 
-with open(str(CurrentPath) + '\intents.json', 'r',encoding='utf-8') as f:
-    intents = json.load(f)
+with open(str(CurrentPath) + '\intents.json', 'r',encoding='utf-8') as f: intents = json.load(f)
 
 all_words = []
 tags = []
@@ -94,15 +93,9 @@ dataset = ChatDataset(X_train,y_train)
 
 
 
-train_loader = DataLoader(dataset=dataset,
-                          batch_size=batch_size,
-                          shuffle=True,
-                          num_workers=0)
+train_loader = DataLoader(dataset=dataset,batch_size=batch_size,shuffle=True,num_workers=0)
 
-test_loader = DataLoader(dataset=dataset,
-                          batch_size=batch_size,
-                          shuffle=True,
-                          num_workers=0)
+test_loader = DataLoader(dataset=dataset,batch_size=batch_size,shuffle=True,num_workers=0)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -139,7 +132,7 @@ def train_model(model, optimizer, criterion, train_loader, device):
         if batch % 100 == 0:
             l, current = loss.item(), (batch + 1) * len(inputs)
             print(f"loss: {l:>7f}  [{current:>10d}/{len(train_loader.dataset):>10d}]")
-        else: 
+        else:
             l, current = loss.item(), (batch + 1) * len(inputs)
             print(f"loss: {l:>7f}  [{current:>10d}/{len(train_loader.dataset):>10d}]")
         train_loss += loss.item()
