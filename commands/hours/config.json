@@ -2,6 +2,7 @@
    "qualified": true,
    "shell" : true,
    "autorun" : "cmd.bat",
+   "args" : [],
    "post-commands" : [],
    "patterns": ["test"]
 }

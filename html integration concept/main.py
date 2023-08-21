@@ -8,9 +8,9 @@ app = Flask(__name__,static_folder='',template_folder='')
 sections = []
 
 def save_data(enabled, name,patterns,instructions):
-    jsonutil = jsonutils(r"../commands/{}/config.json".format(name))
     try:
         os.mkdir(r"../commands/{}".format(name))
+        jsonutil = jsonutils(r"../commands/{}/config.json".format(name))
         with open(r"../commands/logs.log",'w') as log: log.close()
         
         with open(r"../commands/{}/cmd.bat".format(name),'w') as f: 
@@ -21,6 +21,7 @@ def save_data(enabled, name,patterns,instructions):
             'qualified': enabled,
             'shell' : True,
             'autorun' : "cmd.bat",
+            'args' : [],
             'post-commands' : [],
             'patterns' : patterns
         }

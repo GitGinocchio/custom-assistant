@@ -21,23 +21,30 @@
 
 
             <div class="form-group">
-                <label for="command-name">Nome del comando:</label>
+                <label for="command-name">*Nome del comando:</label>
                 <input type="text" id="command-name" name="command-name" class='input-name' placeholder="Nome del comando" value="">
             </div>
             
 
 
             <div class="form-group">
-                <label for="patterns">Modelli di frasi:</label>
+                <label for="patterns">*Modelli di frasi:</label>
                 <textarea id="patterns" name="patterns" placeholder="Inserisci i modelli di frasi separati da una nuova riga es. Che ore sono?" value=""></textarea>
             </div>
 
 
 
             <div class="form-group">
-                <label for="instructions">Istruzioni:</label>
-                <textarea id="instructions" name="instructions" placeholder="Inserisci le istruzioni (batch) che verranno eseguite" value=""></textarea>
+                <label for="autorun">*Autorun:</label>
+                <input type="text" id="autorun" name="autorun" class='input-name' placeholder="file .* che verra\' avviato all\'attivazione del comando" value="cmd.bat">
             </div>
+
+            <div class="form-group">
+                <label for="instructions">Istruzioni:</label>
+                <textarea id="instructions" name="instructions" placeholder="Inserisci le istruzioni del file 'cmd.bat' che verranno eseguite" value=""></textarea>
+            </div>
+
+            
 
             <div class="form-group">
                 <button type="submit"> Invia </button>
@@ -51,7 +58,7 @@
                 var instructionsInput = document.getElementById("instructions");
                 var invalidChars = /[\/;:\[\]()!@#$%^*]/g;
 
-                if (commandNameInput.value === "" || patternsInput.value === "" || instructionsInput.value === "") {
+                if (commandNameInput.value === "" || patternsInput.value === "") {
                     event.preventDefault(); // Impedisce l'invio del modulo
                     alert("Tutti i campi devono essere compilati");
                 } else if (commandNameInput.value.match(invalidChars) || patternsInput.value.match(invalidChars)) {
