@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Command</title>
+    <link rel="stylesheet" href="./add/style.css" type="text/css" />
+</head>
+<body>
+    <div class="container">
+        <form id="data" method="post" action="/add">
+            <label>Proprieta' comando:</label>
+            <br>
+            <br>
+            <div class="radio-container">
+                <input type="radio" id="radio-1" name="enabled" value="True" checked>
+                <label for="radio-1">Abilitato</label>
+    
+                <input type="radio" id="radio-2" name="enabled" value="False">
+                <label for="radio-2">Disabilitato</label>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="command-name">Nome del comando:</label>
+                <input type="text" id="command-name" name="command-name" class='input-name' placeholder="Nome del comando" value="">
+            </div>
+            
+
+
+            <div class="form-group">
+                <label for="patterns">Modelli di frasi:</label>
+                <textarea id="patterns" name="patterns" placeholder="Inserisci i modelli di frasi separati da una nuova riga es. Che ore sono?" value=""></textarea>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="instructions">Istruzioni:</label>
+                <textarea id="instructions" name="instructions" placeholder="Inserisci le istruzioni (batch) che verranno eseguite" value=""></textarea>
+            </div>
+
+            <div class="form-group">
+                <button type="submit"> Invia </button>
+            </div>
+        </form>
+    
+        <script>
+            document.getElementById("data").addEventListener("submit", function(event) {
+                var commandNameInput = document.getElementById("command-name");
+                var patternsInput = document.getElementById("patterns");
+                var instructionsInput = document.getElementById("instructions");
+                var invalidChars = /[\/;:\[\]()!@#$%^*]/g;
+
+                if (commandNameInput.value === "" || patternsInput.value === "" || instructionsInput.value === "") {
+                    event.preventDefault(); // Impedisce l'invio del modulo
+                    alert("Tutti i campi devono essere compilati");
+                } else if (commandNameInput.value.match(invalidChars) || patternsInput.value.match(invalidChars)) {
+                    event.preventDefault(); // Impedisce l'invio del modulo
+                    alert("I caratteri speciali come / ; : [ ] ( ) ! @ # $ % ^ * sono accettati solo nelle istruzioni!");}
+            });
+        </script>
+    </div>
+</body>
+</html>
+
+
+
+

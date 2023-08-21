@@ -1,0 +1,7 @@
+{
+   "qualified": true,
+   "shell" : true,
+   "autorun" : "cmd.bat",
+   "post-commands" : [],
+   "patterns": ["test"]
+}
