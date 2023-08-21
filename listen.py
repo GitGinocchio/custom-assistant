@@ -66,7 +66,7 @@ class Listener:
             with speech_recognition.AudioFile(temp_file) as source:
                 recognizer = speech_recognition.Recognizer()
                 audiodata = recognizer.record(source)
-                data = recognizer.recognize_google(audiodata,language=self.lang,show_all=True,with_confidence=True)
+                data = recognizer.recognize_google(audiodata,language=self.lang,show_all=True) #with_confidence=True
                 if len(data) != 0:
                     Input = (data['alternative'][0]['transcript']).lower()
                     confidence = (data['alternative'][0]['confidence'])

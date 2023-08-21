@@ -1,11 +1,11 @@
 from ai import Ai
-from say import TTS
+#from say import TTS
 from listen import Listener
-from NLPTS import NLPTS
+#from NLPTS import NLPTS
 import os,subprocess
 os.chdir(os.path.dirname(__file__))
 
-ai = Ai(datafp='.\data\data.pth',device='cpu')
+ai = Ai(datafp='.\models\data.pth',device='cpu')
 #tts = TTS(device=None,lang='it',tld='com',slow=False)
 listener = Listener(device=None,lang='it-IT')
 #nlpts = NLPTS(datafp='.\data\data.pth',ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
