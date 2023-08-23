@@ -203,7 +203,7 @@ def run_training_and_evaluation_test():
 
     for epoch in range(num_epochs):
         clearConsole()
-        print(Fore.GREEN + '[ ↑ ] : speed up all processes | [ ↓ ] : slow up all processes | [ ] : print more specific information \n' + Fore.RESET)
+        print(Fore.GREEN + '[ ↑ ] : speed up all processes | [ ↓ ] : slow down all processes | [ ] : print more specific information \n' + Fore.RESET)
         print(f"Epoch {epoch+1}/{num_epochs}\n----------------------------------")
         train_loss = train_model(model,optimizer,criterion,train_loader,device)
         test_loss, accuracy, total, correct = test_model(model,criterion,test_loader,device)

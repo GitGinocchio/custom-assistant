@@ -20,6 +20,7 @@ class TTS:
         assert volume >= 0.01 and volume <= 5.0, "Invalid volume level, level must be between 0.01 and 5.0"
         
         tts = gtts.gTTS(text=sentence, lang=self.lang, tld=self.tld, slow=self.slow,lang_check=True)
+
         with TemporaryFile(suffix='.wav',prefix='tts_audiodata_',delete=False) as tf: [tf.write(b) for b in tts.stream()]
 
         audiodata, sr_audio_data = sf.read(file=tf.name,dtype='float64') #dtype='float32'
@@ -94,7 +95,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Interazione con TTS.')
 
     parser.add_argument('sentence', type=str, help='Frase che viene inviata all\'API di google per ottenere un file audio.')
-    parser.add_argument('-devices', action='store_true', default=False,help='Se mostrare a schermo tutti i dispositivi disponibili. (VIENE ESEGUITO SOLO QUESTO COMANDO.) Default: False')
     parser.add_argument('-device','-d', type=str, default=None,help='Dispositivo di uscita audio da utilizzare. (int [device index] | str [device name]) Default: your default output device')
     parser.add_argument('-lang','-l', type=(str), default='en',choices=get_langs(),help='Lingua da utilizzare per la pronuncia da parte dell\'API google. Default: \'en\' ')
     parser.add_argument('-tld', type=(str), default='com',choices=get_tlds(),help='Dominio di alto livello da utilizzare per l\'accento. Default: \'com\' ')
@@ -103,11 +103,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.devices:
-        devices_list = sd.query_devices()
-
-        for device in devices_list:
-            if device['max_output_channels'] > 0: print(f"{device['index']} - Name: {device['name']} Samplerate: {device['default_samplerate']} ")
-    else:
-        tts = TTS(args.device if args.device is None else int(args.device) if args.device.isnumeric() else args.device,args.lang,args.tld,args.slow)
-        tts.say(args.sentence,args.volume,True)
+    tts = TTS(args.device if args.device is None else int(args.device) if args.device.isnumeric() else args.device,args.lang,args.tld,args.slow)
+    tts.say(args.sentence,args.volume,True)

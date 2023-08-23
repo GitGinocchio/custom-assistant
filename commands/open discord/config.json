@@ -1,0 +1,13 @@
+{
+   "qualified": true,
+   "description": "Un semplice comando che permette l'apertura di discord",
+   "shell": true,
+   "autorun": "cmd.bat",
+   "args": "",
+   "post-commands": "",
+   "patterns": [
+      "potresti aprire discord",
+      "apriresti discord per me?",
+      "apri discord"
+   ]
+}

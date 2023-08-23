@@ -8,5 +8,5 @@ set ora=%time%
 for /f "tokens=1-2 delims=:" %%a in ("%ora%") do (
     set "ora=%%a:%%b"
 )
-python say.pyw "In questo momento sono le ore: %ora%" -l "it"
+python say.py "In questo momento sono le ore: %ora%" -l "it"
 echo In questo momento sono le ore: %ora%

@@ -20,21 +20,29 @@
     {% for section in sections %}
     <div class="section">
         <form>
-            <input type="text" class="name-input" placeholder="Nome del comando" value="" />
-            <input type="text" class="name-input" placeholder="Nome del comando" value="" />
+            <label class="switch"> <!-- onclick="toggleEnabled(this)" -->
+                <span class="slider {% if section['enabled'] == True %}active{% endif %}"></span>
+            </label>
+            <div class="name-description">
+                <div class="name">{{ section["name"] }}</div>
+            </div>
+
+            <div>
+                <div class="description">{{ section["description"] }}</div>
+            </div>
+            <button class="edit-button">Modifica</button>
         </form>
 
     </div>
     {% endfor %}
 
+    <script>
+        function toggleEnabled(switchElement) {
+            let slider = switchElement.querySelector(".slider");
+            slider.classList.toggle("active");
+        }
+    </script>
 
-    <!--
-    <h1>Benvenuto alla mia UI</h1>
-    <p id="dynamic-content">{{dynamic_content}}</p>
-    <form method="post" action="/update_content">
-        <input type="submit" value="Cambia Contenuto">
-    </form>
-    -->
 </body>
 
 

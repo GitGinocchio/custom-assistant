@@ -84,7 +84,7 @@ class Ai:
         prob = probs[0][predicted.item()]
 
         if prob.item() >  min_prob if min_prob is not None else float(self.data['benchmark']['min_prob']):
-            for intent in self.data['intents']:
+            for intent in self.data['intents']['intents']:
                 if tag == intent["tag"]:
                     return str(intent['tag']), float(prob.item())
             else:

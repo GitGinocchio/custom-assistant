@@ -7,11 +7,11 @@ app = Flask(__name__,static_folder='',template_folder='')
 
 sections = []
 
-def save_data(enabled,name,patterns,autorun,args,shell,instructions,post_args):
+def save_data(enabled,name,description,patterns,autorun,args,shell,instructions,post_args):
     try:
         os.mkdir(r"../commands/{}".format(name))
         jsonutil = jsonutils(r"../commands/{}/config.json".format(name))
-        with open(r"../commands/logs.log",'w') as log: log.close()
+        with open(r"../commands/{}/logs.log".format(name),'w') as log: log.close()
         
         with open(r"../commands/{}/cmd.bat".format(name),'w') as f: 
             for line in instructions: f.write(line)
@@ -19,6 +19,7 @@ def save_data(enabled,name,patterns,autorun,args,shell,instructions,post_args):
 
         data = {
             'qualified': enabled,
+            'description': description,
             'shell' : shell,
             'autorun' : autorun,
             'args' : args,
@@ -36,15 +37,29 @@ def save_data(enabled,name,patterns,autorun,args,shell,instructions,post_args):
     else:
         return 0
 
+def load_commands():
+    sections.clear()
+    for dir in os.listdir(f"..\commands"):
+        content = jsonutils(f"..\commands\{dir}\config.json").content()
+        cmd = {
+            "enabled": content["qualified"],
+            "name" : dir,
+            "description" : content["description"],
+        }
+        sections.append(cmd)
 
 @app.route('/')
-def index(): return render_template('index/index.html', sections=sections)
+def index():
+    load_commands()
+    return render_template('index/index.html', sections=sections)
 
 @app.route('/add', methods=['GET','POST'])
 def add():
     if request.method == 'POST':
         cmd_enabled = request.form.get('enabled',type=bool)
+        print(cmd_enabled)
         cmd_name = request.form.get('command-name',type=str).strip()
+        cmd_description = request.form.get('description',type=str).strip()
         cmd_patterns = request.form.get('patterns',type=str).splitlines()
         autorun = request.form.get('autorun',type=str).strip()
         args = request.form.get('args',type=str).strip()
@@ -52,7 +67,7 @@ def add():
         cmd_instructions = request.form.get('instructions',type=str).splitlines(True)
         pargs = request.form.get('pargs',type=str).strip()
 
-        if save_data(cmd_enabled,cmd_name,cmd_patterns,autorun,args,shell,cmd_instructions,pargs) == 0:
+        if save_data(cmd_enabled,cmd_name,cmd_description,cmd_patterns,autorun,args,shell,cmd_instructions,pargs) == 0:
             print('saved')
         else:
             print('not saved')
@@ -65,9 +80,8 @@ def add():
     if request.method == 'GET': pass
 
     return render_template('add/add.html')
-    
-    
-    #return redirect('/')
+
 
 if __name__ == '__main__':
+    load_commands()
     app.run()

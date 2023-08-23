@@ -13,3 +13,8 @@ class jsonutils:
     def save_to_file(self,content,indent: int = 3):
         with open(self.fp, 'w') as json_file:
             json.dump(content,json_file,indent=indent)
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description='.')
