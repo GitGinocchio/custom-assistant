@@ -1,23 +1,25 @@
-from tempfile import TemporaryFile
 import speech_recognition
 import soundfile as sf
 import sounddevice as sd
-import numpy as np
-import time
-import os
-os.chdir(os.path.dirname(__file__))
+import time,os,io,numpy as np
+
 
 
 class Listener:
     def __init__(self,device : int | str = None,lang : str = 'en-US'):
         self.device = sd.query_devices(device if device is not None else sd.default.device[0],'input')
+        self.recognizer = speech_recognition.Recognizer()
         self.lang = lang
         self.streams = []
-    
-    def listen(self,triggers : list[str] = [],min_confidence : float = None,nretry : int = -1,threshold_factor : float = 0.1, min_time : float = 0.0,timeout : float = None, silence_duration : float = 2.0, wait : bool = True):
-        start_time = time.time()
 
-        with TemporaryFile(prefix='mic_recording_',suffix='.wav',delete=False) as tf: temp_file = tf.name
+    def get_microphone_threshold(self,duration=0.1,*,device : int = None):
+        audio = sd.rec(int(duration * int(self.device['default_samplerate'])),samplerate=int(self.device['default_samplerate']),channels=int(self.device['max_input_channels']),device=device if device is not None else self.device['index'])
+        sd.wait()
+        return audio.max()
+
+    def listen(self,triggers : list[str] = [],min_confidence : float = None,nretry : int = -1,threshold_factor : float = 0.1, min_time : float = 0.0,timeout : float = None, silence_duration : float = 2.0, wait : bool = True):
+        start = time.time()
+        
         Input = None
         confidence = None
         recording = []
@@ -34,7 +36,7 @@ class Listener:
 
             #print(current_max, max_amplitude)
 
-            if current_max <= max_amplitude * threshold_factor and (time.time() - start_time) >= min_time: 
+            if current_max <= max_amplitude * threshold_factor and (time.time() - start) >= min_time: 
                 if silence_timer is None:
                     silence_timer = time.time()
             else:
@@ -44,15 +46,13 @@ class Listener:
                 finished = True
                 raise sd.CallbackStop()
             
-            if timeout is not None and (time.time() - start_time) >= timeout: #stoppa l'ascolto se viene superato il tempo limite
+            if timeout is not None and (time.time() - start) >= timeout: #stoppa l'ascolto se viene superato il tempo limite
                 finished = True
                 raise sd.CallbackStop()
 
         def finished_callback():
             nonlocal finished
-
-            if finished:
-                self.streams.remove(stream)
+            if finished: self.streams.remove(stream)
 
         stream = sd.InputStream(samplerate=int(self.device['default_samplerate']),device=self.device['index'],channels=int(self.device['max_input_channels']),callback=callback,finished_callback=finished_callback)
 
@@ -60,14 +60,16 @@ class Listener:
         except sd.PortAudioError as e: stream = None
         else: self.streams.append(stream)
 
-        if wait: 
-            while stream.active: pass
+        if wait:
+            try:
+                while stream.active: pass
+                filelike = io.BytesIO() #sf.SoundFile()
+                sf.write(filelike,np.concatenate(recording),int(stream.samplerate),format='WAVEX') #filelike.write(np.concatenate(recording).tobytes())
+                filelike.seek(0)
 
-            sf.write(temp_file, np.concatenate(recording), int(self.device['default_samplerate']))
-            with speech_recognition.AudioFile(temp_file) as source:
-                recognizer = speech_recognition.Recognizer()
-                audiodata = recognizer.record(source)
-                data = recognizer.recognize_google(audiodata,language=self.lang,show_all=True,with_confidence=True)
+                audiodata = speech_recognition.AudioData(filelike.read(), int(stream.samplerate), stream.samplesize)
+                data = self.recognizer.recognize_google(audiodata,language=self.lang,show_all=True) #with_confidence=True
+
                 if len(data) != 0:
                     Input = (data['alternative'][0]['transcript']).lower()
                     confidence = (data['alternative'][0]['confidence'])
@@ -75,10 +77,11 @@ class Listener:
                     if triggers and not any(trigger.lower() in Input.lower() for trigger in triggers): Input = None
                     
                     if min_confidence is not None and min_confidence > confidence: Input = None
-
-            if finished: os.remove(temp_file)
-        
-        return Input, {'stream' : stream,'confidence' : confidence, 'duration_recording': float(time.time() - start_time),'samplerate' : int(self.device['default_samplerate']),'channels' : int(self.device['max_input_channels'])}
+            except speech_recognition.RequestError as e:
+                print("Api Error: {}".format(e))
+                print("Details: {}: {}, {}: {}, {}: {}".format("Input", Input,"confidence", confidence,"0:10b",audiodata.get_raw_data()[0:10]))
+    
+        return Input, {'stream' : stream,'confidence' : confidence, 'duration_recording': float(time.time() - start),'samplerate' : int(self.device['default_samplerate']),'channels' : int(self.device['max_input_channels'])}
 
     def stop(self, stream : sd.InputStream = None):
         """
@@ -127,7 +130,10 @@ class Listener:
             print(e)
             pass
 
-if __name__ == '__main__':
+
+
+if __name__ == '_main__':
+    os.chdir(os.path.dirname(__file__))
     import argparse
     parser = argparse.ArgumentParser(description='Interazione con TTS.')
     parser.add_argument('-device','-d', type=str, default=None,help='Dispositivo di ingresso audio da utilizzare. (int [device index] | str [device name]) Default: il tuo dispositivo standard di ingresso')

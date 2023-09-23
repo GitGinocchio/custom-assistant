@@ -25,7 +25,8 @@ class ChatDataset(Dataset):
 
 # - Model Training and Evaluation - 
 class MTE:
-    def __init__(self,epochs : int,lr : float = 0.001,hidden_size : int = 8,device : str = 'cpu',*,ignore_words : list[str],last_dataset : str = None):
+    def __init__(self,epochs : int,lr : float = 0.001,hidden_size : int = 8,device : str = 'cpu',*,ignore_words : list[str],last_dataset : str = None,commandspath : str):
+        self.commandspath = commandspath
         self.ignore_words = ignore_words
         if last_dataset is None:
             self.all_words,self.tags,self.xy,self.x,self.y,self.intents = [],[],[],[],[],[]
@@ -33,9 +34,9 @@ class MTE:
             data = torch.load(last_dataset,encoding='utf-8')
             self.all_words,self.tags,self.xy,self.x,self.y,self.intents = data['all_words'],data['tags'],[],[],[],data['intents']
         
-        for dir in os.listdir(os.path.join(os.path.dirname(__file__),'commands')):
-            if os.path.isdir(os.path.join(os.path.dirname(__file__),'commands',dir)):
-                content = jsonutils(os.path.join(os.path.dirname(__file__),'commands',dir,'config.json')).content()
+        for dir in os.listdir(self.commandspath):
+            if os.path.isdir(os.path.join(self.commandspath,dir)):
+                content = jsonutils(os.path.join(self.commandspath,dir,'config.json')).content()
                 self.intents.append({'tag' : dir,'patterns' : content['patterns']})
                 self.tags.append(dir)
                 for pattern in content['patterns']:
@@ -158,8 +159,6 @@ class MTE:
     def save(self,path : str = None):
         self.nepochs = 0
 
-
-
         data = {
         "intents" : self.intents,
         "model_state": self.model.state_dict(),
@@ -192,7 +191,7 @@ class MTE:
 
         }
         try:
-            torch.save(data, "./models/{}.{}.{}.pth".format(datetime.datetime.now().day,datetime.datetime.now().month,datetime.datetime.now().year) if path is None else path)
+            torch.save(data, "../models/{}.{}.{}.pth".format(datetime.datetime.now().day,datetime.datetime.now().month,datetime.datetime.now().year) if path is None else path)
         except Exception as e: print(e)
 
 
@@ -201,7 +200,7 @@ if __name__ == '__main__':
     os.system('cls') if os.name in ('nt', 'dos') else os.system('clear')
     from colorama import Fore,Back
     import keyboard
-    mte = MTE(1000,ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|']) #last_dataset="./models/data.pth"
+    mte = MTE(1000,ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'],commandspath=r'../commands') #last_dataset="./models/data.pth"
     bar_length = 100
     t = 1.0
     def keyboard_callback(key):

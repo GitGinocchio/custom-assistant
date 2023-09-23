@@ -1,0 +1,7 @@
+{
+    "user" : "",
+    "assistant" : [],
+    "ai" : {"device" : "cpu","model" : "latest"},
+    "tts" : {"device" : "","lang" : "it"},
+    "listener" : {"device" : "","lang" : "it-IT"}
+}

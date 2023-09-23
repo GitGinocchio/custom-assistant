@@ -1,10 +1,10 @@
 {
    "description": "Un semplice comando che se chiamato restituisce l'ora attuale in formato {ora}:{minuti}.",
-   "qualified": true,
+   "enabled": true,
    "shell" : true,
    "autorun" : "cmd.bat",
+   "dir" : "",
    "args" : [],
-   "post-commands" : [],
    "patterns": [
       "che ore sono", 
       "che ora è",

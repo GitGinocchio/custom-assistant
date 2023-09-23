@@ -1,0 +1,82 @@
+from ai import Ai
+#from say import TTS
+from listen import Listener
+#from NLPTS import NLPTS
+import os,subprocess,atexit
+from jsonutils import jsonutils
+os.chdir(os.path.dirname(__file__))
+
+models = [model for model in os.listdir(os.path.join(os.path.dirname(__file__),'models'))]
+models.sort(key=lambda x: str(os.path.basename(x)).split('.')[:2],reverse=True)
+model = 'latest'
+
+ai = Ai(datafp=os.path.join(os.path.dirname(__file__),'models',models[0] if model == 'latest' else model),device='cpu')
+#tts = TTS(device=None,lang='it',tld='com',slow=False)
+listener = Listener(device=None,lang='it-IT')
+#nlpts = NLPTS(datafp='.\data\data.pth',ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
+
+def remove():
+    path = os.environ['PATH'].split(';')
+    tools = os.path.join(os.path.dirname(__file__),'tools')
+    if tools in path: path.remove(tools)
+    path = ';'.join(path)
+    subprocess.Popen(['setx', 'PATH', path], shell=True)
+
+#remove the directory from system variables at exit.
+atexit.register(remove)
+#add the directory from system variables at exit.
+subprocess.Popen(['setx', 'PATH', f"{os.environ['PATH']};{os.path.join(os.path.dirname(__file__),'tools')}"],stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+
+
+while True:
+    try:
+        print('listening...')
+        data = listener.listen(triggers=['google','ehi google'],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=5,min_time=0)
+        assert data[0] is not None, 'No input was passed...'
+
+        tag,prob = ai.process(data[0])
+        content = jsonutils(os.path.join(os.path.dirname(__file__),r'commands\{}\config.json'.format(tag))).content()
+        assert content['qualified'], "command disabled."
+
+        file = os.path.join(os.path.dirname(__file__),r'commands\{}\{}'.format(tag,content['autorun']))
+        args = list(content['args'])
+
+        #move to a custom directory if autorun is a .bat or a .cmd file.
+        #if str(content['autorun']).endswith(('.bat','.cmd')): args.append(f"/K cd /d {os.path.join(os.path.dirname(__file__),'tools')}")
+
+        """
+        import subprocess
+        import os
+
+        # Percorso da aggiungere al PATH
+        new_path = r'C:\nuova\cartella'
+
+        # Ottieni il valore corrente della variabile PATH
+        current_path = os.environ['PATH']
+
+        # Crea il nuovo valore della variabile PATH aggiungendo il nuovo percorso
+        new_path_value = f'{current_path};{new_path}'
+
+        # Utilizza il comando 'setx' per impostare il nuovo valore della variabile PATH
+        subprocess.Popen(['setx', 'PATH', new_path_value], shell=True)
+        """
+
+        cmd = [file,*args]
+        print(cmd)
+
+        process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,shell=content['shell'])
+        print("pid:",process.pid)
+    
+    except subprocess.CalledProcessError as e: print("ProcessError: ",e)
+    except AssertionError as e: pass
+    except Exception as e: print("Exception: ",e)
+
+
+
+
+"""
+cd %~dp0
+cd ..
+cd ..
+cd tools
+"""

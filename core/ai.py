@@ -1,45 +1,48 @@
 import nltk,os,torch,torch.nn as nn,numpy as np,json
 os.chdir(os.path.dirname(__file__))
 
-class utils:
-    def tokenize(sentence):
-        """
-        split sentence into array of words/tokens
-        a token can be a word or punctuation character, or number
-        """
-        return nltk.word_tokenize(sentence,language='Italian',preserve_line=True)
 
-    def stem(word):
-        
-        """
-        stemming = find the root form of the word
-        examples:
-        words = ["organize", "organizes", "organizing"]
-        words = [stem(w) for w in words]
-        -> ["organ", "organ", "organ"]
-        """
-        from nltk.stem.porter import PorterStemmer
-        return PorterStemmer().stem(word.lower())
 
-    def bag_of_words(tokenized_sentence, words):
-        """
-        return bag of words array:
-        1 for each known word that exists in the sentence, 0 otherwise
-        example:
-        sentence = ["hello", "how", "are", "you"]
-        words = ["hi", "hello", "I", "you", "bye", "thank", "cool"]
-        bag   = [  0 ,    1 ,    0 ,   1 ,    0 ,    0 ,      0]
-        """
-        # stem each word
-        sentence_words = [utils.stem(word) for word in tokenized_sentence]
-        # initialize bag with 0 for each word
-        bag = np.zeros(len(words), dtype=np.float32)
-        for idx, w in enumerate(words):
-            if w in sentence_words: 
-                bag[idx] = 1
-            #print(idx, w)
-        #print(bag)
-        return bag
+def tokenize(sentence):
+    """
+    split sentence into array of words/tokens
+    a token can be a word or punctuation character, or number
+    """
+    return nltk.word_tokenize(sentence,language='Italian',preserve_line=True)
+
+def stem(word):
+    
+    """
+    stemming = find the root form of the word
+    examples:
+    words = ["organize", "organizes", "organizing"]
+    words = [stem(w) for w in words]
+    -> ["organ", "organ", "organ"]
+    """
+    from nltk.stem.porter import PorterStemmer
+    return PorterStemmer().stem(word.lower())
+
+def bag_of_words(tokenized_sentence, words):
+    """
+    return bag of words array:
+    1 for each known word that exists in the sentence, 0 otherwise
+    example:
+    sentence = ["hello", "how", "are", "you"]
+    words = ["hi", "hello", "I", "you", "bye", "thank", "cool"]
+    bag   = [  0 ,    1 ,    0 ,   1 ,    0 ,    0 ,      0]
+    """
+    # stem each word
+    sentence_words = [stem(word) for word in tokenized_sentence]
+    # initialize bag with 0 for each word
+    bag = np.zeros(len(words), dtype=np.float32)
+    for idx, w in enumerate(words):
+        if w in sentence_words: 
+            bag[idx] = 1
+        #print(idx, w)
+    #print(bag)
+    return bag
+
+
 
 class NeuralNet(nn.Module):
     def __init__(self, input_size, hidden_size, num_classes):
@@ -60,6 +63,8 @@ class NeuralNet(nn.Module):
         # no activation and no softmax at the end
         return out
 
+
+
 class Ai:
     def __init__(self,datafp : str, device : str):
         if device == 'cuda' and not torch.cuda.is_available(): raise ValueError('Error: selected device is type CUDA but is not available.')
@@ -72,8 +77,8 @@ class Ai:
     def process(self,Sentence : str, min_prob : float = None):
         #for word in self.data['intents']["Callers"]: Sentence = Sentence.replace(word,'').strip()
         
-        Sentence = utils.tokenize(Sentence.lower())
-        X = utils.bag_of_words(Sentence, self.data['all_words'])
+        Sentence = tokenize(Sentence.lower())
+        X = bag_of_words(Sentence, self.data['all_words'])
         X = X.reshape(1, X.shape[0])
         X = torch.from_numpy(X).to(self.device)
 
@@ -83,7 +88,7 @@ class Ai:
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
 
-        if prob.item() >  min_prob if min_prob is not None else float(self.data['benchmark']['min_prob']):
+        if prob.item() > min_prob if min_prob is not None else float(self.data['benchmark']['min_prob']):
             for intent in self.data['intents']:
                 if tag == intent["tag"]:
                     return str(intent['tag']), float(prob.item())
@@ -91,6 +96,8 @@ class Ai:
                 return None, float(prob.item())
         else:
             return None, float(prob.item())
+
+
 
 if __name__ == "__main__":
     import argparse

@@ -1,0 +1,12 @@
+{
+   "description": "Un semplice comando che permette l'apertura di molte applicazioni",
+   "enabled": true,
+   "shell": true,
+   "autorun": "cmd.bat",
+   "args": [],
+   "patterns": [
+      "apri",
+      "potresti aprire",
+      "apriresti"
+   ]
+}
