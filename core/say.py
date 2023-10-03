@@ -22,8 +22,8 @@ class TTS:
 
         audiodata, sr_audiodata = sf.read(fileobj, dtype='float32')
         audiodata = np.expand_dims(audiodata, axis=1) if audiodata.ndim == 1 else audiodata
-        samplerate = device['default_samplerate'] if sr_audiodata > device['default_samplerate'] else sr_audiodata
-        audiodata = signal.resample(audiodata, int(len(audiodata) * device['default_samplerate'] / sr_audiodata)) if sr_audiodata > device['default_samplerate'] else audiodata
+        samplerate = self.device['default_samplerate'] if sr_audiodata > self.device['default_samplerate'] else sr_audiodata
+        audiodata = signal.resample(audiodata, int(len(audiodata) * self.device['default_samplerate'] / sr_audiodata)) if sr_audiodata > self.device['default_samplerate'] else audiodata
         audiodata *= volume
         duration = len(audiodata) / samplerate
 
@@ -50,7 +50,7 @@ class TTS:
                 #stopped
                 pass
 
-        stream = sd.OutputStream(float(samplerate),device=self.device['index'],channels=device['max_output_channels'],callback=callback,finished_callback=finished_callback)
+        stream = sd.OutputStream(float(samplerate),device=self.device['index'],channels=self.device['max_output_channels'],callback=callback,finished_callback=finished_callback)
 
         try:
             stream.start()
@@ -62,7 +62,7 @@ class TTS:
 
         if wait: time.sleep(duration)
         
-        return (duration), {'stream': stream,'samplerate' : samplerate,'channels' : device['max_output_channels']}
+        return (duration), {'stream': stream,'samplerate' : samplerate,'channels' : self.device['max_output_channels']}
 
 def get_tlds(): 
     return ['com', 'ad', 'ae', 'com.af', 'com.ag', 'com.ai', 'al', 'am', 'co.ao', 'com.ar', 'as', 'at', 'com.au', 'az', 'ba', 'com.bd', 'be', 'bf', 'bg', 'com.bh', 'bi', 'bj', 'com.bn', 'com.bo', 'com.br', 'bs', 'bt', 'co.bw', 'by', 'com.bz', 'ca', 'cd', 'cf', 'cg', 'ch', 'ci', 'co.ck', 'cl', 'cm', 'cn', 'com.co', 'co.cr', 'com.cu', 'cv', 'com.cy', 'cz', 'de', 'dj', 'dk', 'dm', 'com.do', 'dz', 'com.ec', 'ee', 'com.eg', 'es', 'com.et', 'fi', 'com.fj', 'fm', 'fr', 'ga', 'ge', 'gg', 'com.gh', 'com.gi', 'gl', 'gm', 'gr', 'com.gt','gy', 'com.hk', 'hn', 'hr', 'ht', 'hu', 'co.id', 'ie', 'co.il', 'im', 'co.in', 'iq', 'is', 'it', 'je', 'com.jm', 'jo', 'co.jp', 'co.ke', 'com.kh', 'ki', 'kg', 'co.kr', 'com.kw', 'kz', 'la', 'com.lb', 'li', 'lk', 'co.ls', 'lt', 'lu', 'lv', 'com.ly', 'co.ma', 'md', 'me', 'mg', 'mk', 'ml', 'com.mm', 'mn', 'ms', 'com.mt', 'mu', 'mv', 'mw', 'com.mx', 'com.my', 'co.mz', 'com.na', 'com.ng', 'com.ni', 'ne', 'nl', 'no', 'com.np', 'nr', 'nu', 'co.nz', 'com.om', 'com.pa', 'com.pe', 'com.pg', 'com.ph', 'com.pk', 'pl', 'pn', 'com.pr', 'ps', 'pt', 'com.py', 'com.qa', 'ro', 'ru', 'rw', 'com.sa', 'com.sb', 'sc', 'se', 'com.sg', 'sh', 'si', 'sk', 'com.sl', 'sn', 'so', 'sm', 'sr', 'st', 'com.sv', 'td', 'tg', 'co.th', 'com.tj', 'tl', 'tm', 'tn', 'to', 'com.tr', 'tt', 'com.tw', 'co.tz', 'com.ua', 'co.ug', 'co.uk', 'com.uy', 'co.uz', 'com.vc', 'co.ve', 'vg', 'co.vi', 'com.vn', 'vu', 'ws', 'rs', 'co.za', 'co.zm', 'co.zw', 'cat']

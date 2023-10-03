@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSignal, QThread
 from listen import Listener
 from ai import Ai
+from NLPTS import NLPTS
 from jsonutils import jsonfile
 import os,time,subprocess,socket
 
@@ -33,6 +34,7 @@ class ProcessingThread(QThread):
         models = [model for model in os.listdir('../models')]
         models.sort(key=lambda x: str(os.path.basename(x)).split('.')[:2],reverse=True)
         self.ai = Ai(datafp=os.path.join('../models',models[0] if model == 'latest' else model),device=device)
+        self.nlpts = NLPTS(os.path.join('../models',models[0] if model == 'latest' else model),['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
 
     def run(self): pass
     
@@ -42,7 +44,8 @@ class ProcessingThread(QThread):
             tag,prob = self.ai.process(data[0])
             content = jsonfile(r'..\commands\{}\config.json'.format(tag))
             assert content['enabled'], "command disabled."
-            cmd = [r'..\commands\{}\{}'.format(tag,content['autorun']),data[0],*list(content['args'])]
+            info = self.nlpts.find(self.nlpts.parse_and_tokenize(data[0]),tag=tag)
+            cmd = [r'..\commands\{}\{}'.format(tag,content['autorun']),data[0],info if info is not None else '',*list(content['args'])]
         except AssertionError: pass
         except Exception as e: print(e)
         else:

@@ -132,7 +132,7 @@ class Listener:
 
 
 
-if __name__ == '_main__':
+if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))
     import argparse
     parser = argparse.ArgumentParser(description='Interazione con TTS.')

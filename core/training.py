@@ -1,4 +1,4 @@
-from ai import NeuralNet,utils
+from ai import NeuralNet,stem,tokenize,bag_of_words
 import torch
 import datetime,time
 import numpy as np
@@ -40,14 +40,14 @@ class MTE:
                 self.intents.append({'tag' : dir,'patterns' : content['patterns']})
                 self.tags.append(dir)
                 for pattern in content['patterns']:
-                    words = utils.tokenize(pattern)
+                    words = tokenize(pattern)
                     self.all_words.extend(words)
                     self.xy.append((words, dir))
-        self.all_words = sorted(set([utils.stem(w) for w in self.all_words if w not in self.ignore_words]))
+        self.all_words = sorted(set([stem(w) for w in self.all_words if w not in self.ignore_words]))
         self.tags = sorted(set(self.tags))
         for (pattern_sentence, tag) in self.xy:
             # X: bag of words for each pattern_sentence
-            bag = utils.bag_of_words(pattern_sentence, self.all_words)
+            bag = bag_of_words(pattern_sentence, self.all_words)
             self.x.append(bag)
             # y: PyTorch CrossEntropyLoss needs only class labels, not one-hot
             label = self.tags.index(tag)
@@ -138,8 +138,8 @@ class MTE:
 
                     #print(f"Total: {total}",f"Correct: {correct}")
             
-            Sentence = utils.tokenize(''.lower())
-            X = utils.bag_of_words(Sentence, self.all_words)
+            Sentence = tokenize(''.lower())
+            X = bag_of_words(Sentence, self.all_words)
             X = X.reshape(1, X.shape[0])
             X = torch.from_numpy(X).to(self.device)
             output = self.model(X)

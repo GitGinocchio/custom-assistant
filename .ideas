@@ -1,0 +1,49 @@
+- Tutti i comandi nativi del programma come:
+    / ai.py
+    / anim.py 
+    / jsonutils.py
+    / listen.py 
+    / nlpts.py
+    / say.py
+    / training.py 
+
+Vengono utilizzati tramite socket e invio di richieste e risposte da parte del programma
+
+Per il resto dei tools nella cartella apposita ./tools devono essere chiamati con lo stesso metodo oppure chiamarli nel file bat.
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+creare due tipi di file per le animazioni:
+    / .anim      #animazioni standard con il tempo in secondi che indica per quanto tempo deve essere visualizzato un frame dell'animazione.
+    / .tanim     #animazioni standard con l'aggiunta di un valore di threshold che deve essere superato per visualizzare quel frame.
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+Utilizzare eseguibili di windows come:
+C:\Windows\System32\osk.exe
+C:\Windows\System32\notepad.exe
+C:\Windows\System32\Narrator.exe
+C:\Windows\System32\msra.exe
+C:\Windows\System32\mspaint.exe
+C:\Windows\System32\msinfo.exe
+C:\Windows\System32\msconfig.exe
+C:\Windows\System32\MRT.exe
+C:\Windows\System32\MdSched.exe
+C:\Windows\System32\Magnify.exe
+C:\Windows\System32\gpupdate.exe
+C:\Windows\System32\fsquirt.exe
+C:\Windows\System32\dvdplay.exe
+C:\Windows\System32\DisplaySwitch.exe
+C:\Windows\System32\diskmgmt.msc 
+C:\Windows\System32\devmgmt.msc
+C:\Windows\System32\dfrgui.exe
+C:\Windows\System32\control.exe
+C:\Windows\System32\cleanmgr.exe
+C:\Windows\System32\charmap.exe
+C:\Windows\System32\certreq.exe
+C:\Windows\System32\dccw.exe
+C:\Windows\System32\calc.exe
+C:\Windows\System32\bootim.exe
+C:\Windows\System32\explorer.exe
+
+per operazioni dirette sul sistema operativo

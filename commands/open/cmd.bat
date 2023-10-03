@@ -1,13 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /f %%i in ('python NLPTS.py %1 -tag "open" -model "../models/15.9.2023.pth"') do set APP=%%i
+python say.py "Sto aprendo "%2"" -l "it" --connect
+echo Sto aprendo %2
 
-python say.py "Sto aprendo %APP%" -l "it" --connect
-echo Sto aprendo %APP%
-
-for /f "delims=" %%i in ('python jsonutils.py get -f "../commands/open/apps.json" -k %APP%') do (set "p=%%i")
-
+for /f "delims=" %%i in ('python jsonutils.py get -f "../commands/open/apps.json" -k %2') do (set "p=%%i")
 echo "%p%"
+
 start "" "%p%"
 exit

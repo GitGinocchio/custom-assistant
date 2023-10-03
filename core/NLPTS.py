@@ -8,7 +8,7 @@ os.chdir(os.path.dirname(__file__))
 
 class NLPTS:
     def __init__(self,datafp : str,ignore_words : list[str] = []):
-        self.intents = torch.load(datafp,encoding='utf-8')['intents']['intents']
+        self.intents = torch.load(datafp,encoding='utf-8')['intents']
         self.ignore_words = ignore_words
 
     def parse(self,sentence : str, sep : str = ' ',maxsplit : int = -1,ignore_words : list[str] = []):
@@ -36,7 +36,7 @@ class NLPTS:
         except IndexError:
             return None
         else:
-            return tag_pos, eval(self.intents[tag_pos]['accept info'])
+            return tag_pos
 
     def find(self, phrase_words : list, tag : str = None, unparse : bool = True,lemm : bool = False):
         """
@@ -47,31 +47,28 @@ class NLPTS:
 
         """
         if tag is not None:
-            tag_position,accept_info = self.findindextagbytag(tag=tag)
+            tag_position = self.findindextagbytag(tag=tag)
         else:
             pass
 
-        if accept_info:
-            tokenized = []
-            for words in [intent['patterns'] for intent in self.intents][tag_position]: 
-                tokenized_words = self.parse_and_tokenize(words)
-                [tokenized.append(lemmatizer.lemmatize(word,'v') if lemm else word) for word in tokenized_words if word not in tokenized] #lemmatizer.lemmatize(word)
-            stemmed_pattern = [stemmer.stem(word,to_lowercase=True) for word in tokenized]
-            #print(stemmed_pattern)
+        tokenized = []
+        for words in [intent['patterns'] for intent in self.intents][tag_position]: 
+            tokenized_words = self.parse_and_tokenize(words)
+            [tokenized.append(lemmatizer.lemmatize(word,'v') if lemm else word) for word in tokenized_words if word not in tokenized] #lemmatizer.lemmatize(word)
+        stemmed_pattern = [stemmer.stem(word,to_lowercase=True) for word in tokenized]
+        #print(stemmed_pattern)
 
-            for index in range(-1, -len(phrase_words)-1, -1):
-                #print(index)
-                if any(w == phrase_words[index] for w in stemmed_pattern): # or any(phrase_words[index].find(w) for w in stemmed_pattern)
-                    if index + 1 in range(-1,-len(phrase_words)-1,-1):
-                        if unparse:
-                            return self.unparse(phrase_words[index + 1::])
-                        else:
-                            return phrase_words[index + 1::]
+        for index in range(-1, -len(phrase_words)-1, -1):
+            #print(index)
+            if any(w == phrase_words[index] for w in stemmed_pattern): # or any(phrase_words[index].find(w) for w in stemmed_pattern)
+                if index + 1 in range(-1,-len(phrase_words)-1,-1):
+                    if unparse:
+                        return self.unparse(phrase_words[index + 1::])
                     else:
-                        return None
-                        #raise IndexError("No data was found for this phrase.")
-        else:
-            return None
+                        return phrase_words[index + 1::]
+                else:
+                    return None
+                    #raise IndexError("No data was found for this phrase.")
 
 if __name__ == '__main__':
     import argparse
