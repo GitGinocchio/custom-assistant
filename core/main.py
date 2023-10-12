@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QSystemTrayIcon,QApplication,QMenu, QAction
 from PyQt5.QtGui import QIcon
 from QDialogs import CreateCommand,EditCommand
-from QAnimations import Animation,ThresholdAnimation
 from QThreads import ListengThread, ProcessingThread, SocketConnection
+from QAnimations import Animation,ThresholdAnimation
 import sys,os
 
 
@@ -25,7 +25,6 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.exit_action.triggered.connect(self.exit)
 
         self.create_command_dialog = None
-
         self.listenthread = ListengThread(self)
         self.processingthread = ProcessingThread(self)
         self.socketserver = SocketConnection(self)
@@ -33,6 +32,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.loadinganim = Animation(self,'loading.anim',color=(0,255,0))
         self.waveanim = Animation(self,'wave.anim',color=(0,255,0))
         self.thresholdanim = ThresholdAnimation(self,'threshold.anim',color=(0,255,0),fn=self.listenthread.L.get_microphone_threshold,values=[0.007,0.01,0.03,0.05,0.07,0.1,0.3,0.5])
+
 
         self.socketserver.start()
         self.listenthread.start()

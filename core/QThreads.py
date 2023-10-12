@@ -1,9 +1,17 @@
 from PyQt5.QtCore import pyqtSignal, QThread
 from listen import Listener
 from ai import Ai
+from say import TTS
 from NLPTS import NLPTS
 from jsonutils import jsonfile
 import os,time,subprocess,socket
+
+#Vorrei spostare qui tutte le animazioni perche' rallentano il programma..
+
+#from QAnimations import Animation,ThresholdAnimation
+#loadinganim = Animation(self,'loading.anim',color=(0,255,0))
+#waveanim = Animation(self,'wave.anim',color=(0,255,0))
+#thresholdanim = ThresholdAnimation(self,'threshold.anim',color=(0,255,0),fn=self.listenthread.L.get_microphone_threshold,values=[0.007,0.01,0.03,0.05,0.07,0.1,0.3,0.5])
 
 
 
@@ -14,8 +22,15 @@ class ListengThread(QThread):
         super().__init__(parent)
         self.L = Listener(lang='it-IT')
 
+    def listen(self):
+        prompt = None
+        while prompt is None:
+            print('listening...')
+            prompt, info = self.L.listen(triggers=['google','ehi google'],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=5,min_time=0)
+            if prompt is not None:
+                return (prompt, info)
+
     def run(self):
-        #sostituire raise AssertionError
         self.parent().thresholdanim.start() #start threshold animation of system tray icon.
         prompt = None
         while prompt is None:
@@ -27,6 +42,17 @@ class ListengThread(QThread):
                 self.parent().thresholdanim.stop()
                 self.parent().loadinganim.start()
 
+#utilizzare la classe SayThread per implementare TTS (meglio un thread separato da SocketConnection)
+#questo e' utile anche perche' posso fare delle animazioni specifiche per questo processo...
+class SayThread(QThread):
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.tts = TTS(lang='it',tld='com')
+    
+    def run(self):pass
+
+
+
 class ProcessingThread(QThread):
     #processingthreadsignal = pyqtSignal(tuple)
     def __init__(self,parent=None,device : str = 'cpu',model : str = 'latest'):
@@ -37,7 +63,7 @@ class ProcessingThread(QThread):
         self.nlpts = NLPTS(os.path.join('../models',models[0] if model == 'latest' else model),['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
 
     def run(self): pass
-    
+
     def process(self, data):
         timer = time.time()
         try:
@@ -74,6 +100,8 @@ class ProcessingThread(QThread):
                 print('----------------------------------------------------------------')
                 self.parent().thresholdanim.start()
 
+
+
 class SocketConnection(QThread):
     def __init__(self,parent=None,rport : int = 4040,sport : int = 2020):
         super().__init__(parent)
@@ -98,8 +126,10 @@ class SocketConnection(QThread):
         client_socket.close()
 
     def handle_data(self, response : bytes):
-        data = jsonfile.loads(response.decode().replace('\'','\"'))
-        
-        if data['type'] == 'threshold':
-            self.parent().loadinganim.stop()
-            self.parent().thresholdanim.from_threshold(float(data['value']),(255,255,255))
+        try:
+            response = dict(jsonfile.loads(response.decode().replace('\'', '\"')))
+            if response['type'] == 'say':
+                print(response)
+                #self.parent().tts.say(response['sentence'],response['volume'])
+
+        except Exception as e: print(e)

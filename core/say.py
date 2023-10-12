@@ -5,7 +5,7 @@ from scipy import signal
 import time,os,io,numpy as np
 
 class TTS:
-    def __init__(self,device : int | str | None, lang : str, tld : str, slow : bool):
+    def __init__(self,device : int | str | None = None, lang : str = 'it', tld : str = 'com', slow : bool = False):
         self.device = sd.query_devices(device if device is not None else sd.default.device[1],'output')
         self.lang = lang
         self.tld = tld
@@ -69,29 +69,3 @@ def get_tlds():
 
 def get_langs():
     return list(gtts.lang.tts_langs().keys())
-
-
-
-if __name__ == '__main__':
-    os.chdir(os.path.dirname(__file__))
-    import argparse
-    parser = argparse.ArgumentParser(description='Interazione con TTS.')
-
-    parser.add_argument('sentence', type=str, help='Frase che viene inviata all\'API di google per ottenere un file audio.')
-    parser.add_argument('-devices', action='store_true', default=False,help='Se mostrare a schermo tutti i dispositivi disponibili. (VIENE ESEGUITO SOLO QUESTO COMANDO.) Default: False')
-    parser.add_argument('-device','-d', type=str, default=None,help='Dispositivo di uscita audio da utilizzare. (int [device index] | str [device name]) Default: your default output device')
-    parser.add_argument('-lang','-l', type=(str), default='en',choices=get_langs(),help='Lingua da utilizzare per la pronuncia da parte dell\'API google. Default: \'en\' ')
-    parser.add_argument('-tld', type=(str), default='com',choices=get_tlds(),help='Dominio di alto livello da utilizzare per l\'accento. Default: \'com\' ')
-    parser.add_argument('-slow','-s', action='store_true', default=False,help='Se impostare la riproduzione della frase con una velocita\' piu\' lenta. Default: False')
-    parser.add_argument('-volume','-v', type=float, default=1.0, help='Seleziona il volume per la riproduzione. Default: 1.0')
-
-    args = parser.parse_args()
-
-    if args.devices:
-        devices_list = sd.query_devices()
-
-        for device in devices_list:
-            if device['max_output_channels'] > 0: print(f"{device['index']} - Name: {device['name']} Samplerate: {device['default_samplerate']} ")
-    else:
-        tts = TTS(args.device if args.device is None else int(args.device) if args.device.isnumeric() else args.device,args.lang,args.tld,args.slow)
-        tts.say(args.sentence,args.volume,True)

@@ -9,6 +9,8 @@
 
 Vengono utilizzati tramite socket e invio di richieste e risposte da parte del programma
 
+i nomi dei file dei comandi rimangono invariati, ma l'unica cosa che fanno e' inviare dei bytes con quello che deve fare
+
 Per il resto dei tools nella cartella apposita ./tools devono essere chiamati con lo stesso metodo oppure chiamarli nel file bat.
 
 ---------------------------------------------------------------------------------------------------------------------------------
