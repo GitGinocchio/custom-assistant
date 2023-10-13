@@ -12,7 +12,7 @@ class TTS:
         self.slow = slow
         self.streams = []
 
-    def say(self,sentence : str,volume : float = 1.0,wait : bool = True):
+    def say(self,sentence : str,*,volume : float = 1.0,threshold_callback : classmethod = None,wait : bool = True):
         assert volume >= 0.01 and volume <= 5.0, "Invalid volume level, level must be between 0.01 and 5.0"
         
         tts = gtts.gTTS(text=sentence, lang=self.lang, tld=self.tld, slow=self.slow,lang_check=True)
@@ -27,28 +27,25 @@ class TTS:
         audiodata *= volume
         duration = len(audiodata) / samplerate
 
-        current_frame = 0
+        frame = 0
         finished = False
 
         def callback(outdata, frames, time, status):
-            nonlocal current_frame,finished
-            if status: print('status: ',status)
-            chunksize = min(len(audiodata) - current_frame, frames)
-            outdata[:chunksize] = audiodata[current_frame:current_frame + chunksize]
+            nonlocal frame,finished
+
+            threshold_callback({"threshold": np.max(np.abs(outdata)),"frames": frames,"frame" : frame,"time" : time,"status" : status})
+            chunksize = min(len(audiodata) - frame, frames)
+            outdata[:chunksize] = audiodata[frame:frame + chunksize]
             if chunksize < frames:
                 outdata[chunksize:] = 0
                 finished = True
                 raise sd.CallbackStop()
-            current_frame += chunksize
+            frame += chunksize
 
         def finished_callback():
             nonlocal finished
-            if finished:
-                pass
-                #finished
-            else:
-                #stopped
-                pass
+            if finished: pass
+            else: pass
 
         stream = sd.OutputStream(float(samplerate),device=self.device['index'],channels=self.device['max_output_channels'],callback=callback,finished_callback=finished_callback)
 
