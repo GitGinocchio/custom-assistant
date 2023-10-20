@@ -44,7 +44,7 @@ class TTS:
 
         def finished_callback():
             nonlocal finished
-            if finished: pass
+            if finished: self.streams.remove(stream)
             else: pass
 
         stream = sd.OutputStream(float(samplerate),device=self.device['index'],channels=self.device['max_output_channels'],callback=callback,finished_callback=finished_callback)

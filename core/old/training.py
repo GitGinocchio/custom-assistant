@@ -5,7 +5,7 @@ import numpy as np
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 from colorama import Fore
-from jsonutils import jsonutils
+from jsonutils import jsonfile
 import os
 os.chdir(os.path.dirname(__file__))
 
@@ -36,7 +36,7 @@ class MTE:
         
         for dir in os.listdir(self.commandspath):
             if os.path.isdir(os.path.join(self.commandspath,dir)):
-                content = jsonutils(os.path.join(self.commandspath,dir,'config.json')).content()
+                content = jsonfile(os.path.join(self.commandspath,dir,'config.json'))
                 self.intents.append({'tag' : dir,'patterns' : content['patterns']})
                 self.tags.append(dir)
                 for pattern in content['patterns']:

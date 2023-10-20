@@ -9,7 +9,7 @@
 
 Vengono utilizzati tramite socket e invio di richieste e risposte da parte del programma
 
-i nomi dei file dei comandi rimangono invariati, ma l'unica cosa che fanno e' inviare dei bytes con quello che deve fare
+i nomi dei file dei comandi rimangono invariati, ma l'unica cosa che fanno e' inviare dei dati in bytes con i comandi da fare
 
 Per il resto dei tools nella cartella apposita ./tools devono essere chiamati con lo stesso metodo oppure chiamarli nel file bat.
 
@@ -47,5 +47,18 @@ C:\Windows\System32\dccw.exe
 C:\Windows\System32\calc.exe
 C:\Windows\System32\bootim.exe
 C:\Windows\System32\explorer.exe
+C:\Windows\System32\curl.exe
 
 per operazioni dirette sul sistema operativo
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+Integrare ai.py,anim.py,jsonutils.py,NLPTS.py in QThreads.py
+Oppure creare dei file thread separati che si occupano di qualcosa, per esempio:
+ / Qjsonthread.py
+ / Qprocessthread.py (nltps.py + ai.py)
+ / Qanimationthread.py
+ / Qlistenthread.py
+ / Qsaythread.py
+
+

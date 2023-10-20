@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QSystemTrayIcon,QApplication,QMenu, QAction
 from PyQt5.QtGui import QIcon
 from QDialogs import CreateCommand,EditCommand
-from QThreads import ListeningThread,SayThread, ProcessingThread, SocketConnection
+from QThreads import JsonThread,ListenThread, SayThread, StartProcessThread, AiThread,TrainAiThread, SocketConnection
 from QAnimations import Animation,ThresholdAnimation
 import sys,os
 
@@ -25,10 +25,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.exit_action.triggered.connect(self.exit)
 
         self.create_command_dialog = None
-        self.listenthread = ListeningThread(self,device=None,lang='it-IT',triggers=["google","ehi google","ok google"],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=5,min_time=0)
+        self.jsonthread = JsonThread(self)
+        self.listenthread = ListenThread(self,device=None,lang='it-IT',triggers=["google","ehi google","ok google"],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=3,min_time=1)
         self.saythread = SayThread(self,device=None,lang='it',tld='com')
-        self.processingthread = ProcessingThread(self,device='cpu',model='latest')
+        self.aithread = AiThread(self,device='cpu',model='latest',language='Italian',ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
         self.socketserver = SocketConnection(self,rport=4040,sport=2020)
+        self.startprocessthread = StartProcessThread(self)
+        self.aitrain = TrainAiThread(self,r'D:\Desktop\Coding\Python\voice-assistant-projects\customized-assistant\commands',epochs=1000,lr=0.001,hidden_size=8,device='cpu')
+        #self.aitrain.start()
+        #self.aitrain.trainaithreadsignal.connect(print)
 
         self.loadinganim = Animation(self,'loading.anim',color=(0,255,0))
         self.waveanim = Animation(self,'wave.anim',color=(0,255,0))
@@ -37,7 +42,8 @@ class SystemTrayIcon(QSystemTrayIcon):
 
         self.socketserver.start()
         self.listenthread.start()
-        self.listenthread.listenthreadsignal.connect(self.processingthread.process)
+        self.saythread.start()
+        self.listenthread.listenthreadsignal.connect(self.startprocessthread.process)
         self.show()
 
     def UserInputHandler(self, reason):

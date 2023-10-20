@@ -7,7 +7,8 @@ client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 def send_request(args : argparse.Namespace):
     try:
         command = {
-            "type":"listen"
+            "type":"setanim",
+            "anim" : ""
             }
         client.connect((args.address,args.port))
         client.send(str(command).encode())

@@ -1,27 +1,42 @@
 import socket,sys
 import argparse
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+send_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+receive_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #address = ("127.0.0.1", 4040)
 
 def send_request(args : argparse.Namespace):
     try:
         command = {
-            "type":"listen",
+            "type": "listen",
             "triggers" : args.triggers,
             "min_confidence": args.min_confidence,
             "threshold_factor" : args.threshold_factor,
             "timeout" : args.timeout,
             "silence_duration" : args.silence_duration
         }
-        client.connect((args.address,args.port))
-        client.send(str(command).encode())
-        client.close()
+        send_client.connect((args.address,args.port))
+        send_client.send(str(command).encode())
+        send_client.close()
     except Exception as e:
         print(e)
         return 1
     else:
-        return 0
+        try:
+            receive_client.bind((args.address, 2020))
+            receive_client.listen(1)
+            response_socket, addr = receive_client.accept()
+            if addr[0] == '127.0.0.1':
+                data = response_socket.recv(1024)
+                print(data.decode('utf-8'))
+            response_socket.close()
+
+        except Exception as e:
+            print(e)
+            return 1
+        else:
+            return 0
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Interazione con Listen.')

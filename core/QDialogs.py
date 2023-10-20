@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QInputDialog,QFileDialog
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.uic import loadUi
-from jsonutils import jsonfile
 import os
 
 
@@ -46,7 +45,7 @@ class CreateCommand(QDialog):
         else:
             try:
                 os.mkdir(r"../commands/{}".format(command_name))
-                content = jsonfile(r"../commands/{}/config.json".format(command_name))
+                content = self.parent().jsonthread.jsonfile(r"../commands/{}/config.json".format(command_name))
                 with open(r"../commands/{}/logs.log".format(command_name),'w') as log: log.close()
                 with open(r"../commands/{}/cmd.bat".format(command_name),'w') as f: f.write(command_istructions)
 

@@ -1,5 +1,4 @@
 import json,os
-os.chdir(os.path.dirname(__file__))
 
 """
 class dict(object)
@@ -116,21 +115,6 @@ class dict(object)
 """
 
 
-class jsonutils:
-    def __init__(self,fp: str = None,*,indent: int = 3):
-        self.fp = fp
-        self.indent = indent
-
-    def content(self):
-        with open(self.fp, 'r') as json_file:
-            content = json.load(json_file)
-            return content
-
-    def save_to_file(self,content,indent: int = 3):
-        with open(self.fp, 'w') as json_file:
-            json.dump(content,json_file,indent=indent)
-
-
 
 class jsonfile:
     def __init__(self,fp : str = None,*,indent : int = 3,encoding : str = 'utf-8',autosave : bool = True):
@@ -214,33 +198,3 @@ class jsonfile:
 
     def save(self,content : dict = None):
         with open(self.fp, 'w',encoding=self.encoding) as jsf: json.dump(content if content is not None else self.content,jsf,indent=self.indent,ensure_ascii=True)
-
-
-
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser(description='Tool da riga di comando che permette di leggere i valori di un file json')
-    parser.add_argument('action',choices=['get','set'],type=str,help='Json file to read from.')
-    parser.add_argument('-f', '--file',type=str,required=True,help='Json file to read from.')
-    parser.add_argument('-k', '--keys',type=str,nargs='*',default=[])
-    parser.add_argument('-v', '--value',type=str)
-
-    ###
-    parser.add_argument('-i', '--indent',type=int,default=3,help='indent of data in the file.')
-    parser.add_argument('-e', '--encoding',type=str,default='utf-8',help='encoding of the json file.')
-    parser.add_argument('-a', '--autosave',type=bool,default=True,help='if changes to the data are saved automatically.')
-    parser.add_argument('-c', '--clear',action='store_true',default=False,help='delete all data in files.')
-
-    args = parser.parse_args()
-    content = jsonfile(args.file,indent=args.indent,encoding=args.encoding,autosave=args.autosave)
-
-    if args.action == 'get':
-        __c = content.content
-        for __k in args.keys:
-            if type(__c) is list and __k.isdecimal(): __c = __c[int(__k)]
-            else: __c = __c[__k]
-        if args.clear: content.clear()
-        print(__c)
-    elif args.action == 'set':
-        content.set(args.keys, int(args.value) if args.value.isdecimal() else args.value)
-        print(args.value)
