@@ -61,4 +61,10 @@ Oppure creare dei file thread separati che si occupano di qualcosa, per esempio:
  / Qlistenthread.py
  / Qsaythread.py
 
+---------------------------------------------------------------------------------------------------------------------------------
+
+Il thread socket deve avviare il processo di ricevuta di pacchetti solo quando viene avviato un comando e spegnersi quando l'esecuzione del comando e' completata.
+
+
+
 

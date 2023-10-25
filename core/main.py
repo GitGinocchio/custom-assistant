@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QSystemTrayIcon,QApplication,QMenu, QAction
 from PyQt5.QtGui import QIcon
-from QDialogs import CreateCommand,EditCommand
+from QDialogs import CreateCommand,EditCommand,Settings
 from QThreads import JsonThread,ListenThread, SayThread, StartProcessThread, AiThread,TrainAiThread, SocketConnection
 from QAnimations import Animation,ThresholdAnimation
 import sys,os
@@ -23,12 +23,14 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.activated.connect(self.UserInputHandler)
         self.create_command_action.triggered.connect(self.create_command)
         self.exit_action.triggered.connect(self.exit)
+        self.open_settings.triggered.connect(self.settings)
 
         self.create_command_dialog = None
+        self.settings_dialog = None
         self.jsonthread = JsonThread(self)
         self.listenthread = ListenThread(self,device=None,lang='it-IT',triggers=["google","ehi google","ok google"],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=3,min_time=1)
         self.saythread = SayThread(self,device=None,lang='it',tld='com')
-        self.aithread = AiThread(self,device='cpu',model='latest',language='Italian',ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
+        self.aithread = AiThread(self,device='cpu',model=0,language='Italian',ignore_words=['?', '.', '!',',',';',':','[', ']', '{', '}', '}', '(','<', '>', '/','\\','|'])
         self.socketserver = SocketConnection(self,rport=4040,sport=2020)
         self.startprocessthread = StartProcessThread(self)
         self.aitrain = TrainAiThread(self,r'D:\Desktop\Coding\Python\voice-assistant-projects\customized-assistant\commands',epochs=1000,lr=0.001,hidden_size=8,device='cpu')
@@ -74,6 +76,13 @@ class SystemTrayIcon(QSystemTrayIcon):
         else:
             if self.create_command_dialog.isHidden(): self.create_command_dialog.show()
             else: self.create_command_dialog.hide()
+
+    def settings(self):
+        if self.settings_dialog is None:
+            self.settings_dialog = Settings(self)
+        else:
+            if self.settings_dialog.isHidden(): self.settings_dialog.show()
+            else: self.settings_dialog.hide()
 
     def exit(self):
         self.hide()

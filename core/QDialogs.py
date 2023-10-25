@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QInputDialog,QFileDialog
+from PyQt5.QtWidgets import QDialog,QMainWindow, QInputDialog,QFileDialog
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.uic import loadUi
 import os
@@ -113,5 +113,18 @@ class CreateCommand(QDialog):
 class EditCommand(CreateCommand):
     def __init__(self,parent=None):
         super(EditCommand, self).__init__(parent)
+
+class Settings(QDialog):
+    def __init__(self,parent=None):
+        super(Settings, self).__init__()
+        loadUi("../ui/dialogs/settings.ui", self)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self._parent = parent
+        self.show()
+
+    def closeEvent(self, event):
+        # Nascondere la finestra di dialogo anziché chiuderla
+        event.ignore()
+        self.hide()
 
 class ViewCommands: pass

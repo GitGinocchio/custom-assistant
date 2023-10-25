@@ -294,19 +294,19 @@ class JsonThread(QThread):
             last_c = content
             for arg in args:
                 last_c = last_c[arg]
-        except ValueError:
+        except ValueError | KeyError:
             return None
         else:
             return last_c
 
 class AiThread(QThread):
     aithreadsignal = pyqtSignal(dict)
-    def __init__(self,parent=None,device : str = 'cpu',model : str = 'latest',language : str = 'Italian',ignore_words : list[str] = []):
+    def __init__(self,parent=None,device : str = 'cpu',model : int | str = 0,language : str = 'Italian',ignore_words : list[str] = []):
         super().__init__(parent)
         models = [model for model in os.listdir('../models')]
         models.sort(key=lambda x: str(os.path.basename(x)).split('.')[:2],reverse=True)
         if device == 'cuda' and not torch.cuda.is_available(): raise ValueError('Error: selected device is type CUDA but is not available.')
-        self.data = torch.load(os.path.join('../models',models[0] if model == 'latest' else model),encoding='utf-8')
+        self.data = torch.load(os.path.join('../models',models[model] if type(model) is int else model),encoding='utf-8')
         self.ignore_words = ignore_words
         self.language = language
         self.device = torch.device('cuda' if device == 'cuda' and torch.cuda.is_available() else 'cpu')
@@ -517,7 +517,6 @@ class TrainAiThread(QThread):
         try:
             torch.save(data, "../models/{}.{}.{}.pth".format(datetime.now().day,datetime.now().month,datetime.now().year) if filename is None else filename)
         except Exception as e: print(e)
-
 
 class StartProcessThread(QThread):
     processingthreadsignal = pyqtSignal(dict)
