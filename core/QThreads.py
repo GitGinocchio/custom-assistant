@@ -7,35 +7,6 @@ from scipy import signal
 
 
 
-#threads
-"""
-class ListeningThread(QThread):
-    listenthreadsignal = pyqtSignal(tuple)
-    def __init__(self,parent=None):
-        super().__init__(parent)
-        self.L = Listener(lang='it-IT')
-
-    def listen(self):
-        prompt = None
-        while prompt is None:
-            print('listening...')
-            prompt, info = self.L.listen(triggers=['google','ehi google'],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=5,min_time=0)
-            if prompt is not None:
-                return (prompt, info)
-
-    def run(self):
-        self.parent().thresholdanim.start() #start threshold animation of system tray icon.
-        prompt = None
-        while prompt is None:
-            print('listening...')
-            prompt, info = self.L.listen(triggers=['google','ehi google'],min_confidence=0.9,threshold_factor=0.7,silence_duration=1.5,timeout=5,min_time=0)
-            if prompt is not None:
-                self.listenthreadsignal.emit((prompt,info))
-                prompt = None
-                self.parent().thresholdanim.stop()
-                self.parent().loadinganim.start()
-"""
-
 class ListenThread(QThread):
     listenthreadsignal = pyqtSignal(tuple)
     def __init__(self,parent=None,device : int | str = None,lang : str = 'en-US',triggers : list[str] = [],min_confidence : float = None,nretry : int = -1,threshold_factor : float = 0.1, min_time : float = 0.0,timeout : float = None, silence_duration : float = 2.0, wait : bool = True):
@@ -54,7 +25,6 @@ class ListenThread(QThread):
         self.streams = []
 
     def run(self):
-        self.parent().thresholdanim.start() #start threshold animation of system tray icon.
         prompt = None
         while prompt is None:
             print('listening...')
@@ -62,7 +32,6 @@ class ListenThread(QThread):
             if prompt is not None:
                 self.listenthreadsignal.emit((prompt,info))
                 prompt = None
-                self.parent().thresholdanim.stop()
 
     def get_microphone_threshold(self,duration=0.1,*,device : int = None):
         audio = sd.rec(int(duration * int(self.device['default_samplerate'])),samplerate=int(self.device['default_samplerate']),channels=int(self.device['max_input_channels']),device=device if device is not None else self.device['index'])
@@ -525,8 +494,10 @@ class StartProcessThread(QThread):
 
     def process(self, data : tuple):
         timer = time.time()
+        self.parent().animator.set_animation(r'D:\Desktop\Coding\Python\voice-assistant-projects\customized-assistant\ui\animations\loading.anim')
         try:
             tag,prob,info = self.parent().aithread.prediction(data[0])
+            assert tag is not None, "tag is None"
             content = self.parent().jsonthread.jsonfile(r'..\commands\{}\config.json'.format(tag))
             assert content['enabled'], "command disabled."
             cmd = [r'..\commands\{}\{}'.format(tag,content['autorun']),data[0],info if info is not None else '',*list(content['args'])]
@@ -553,7 +524,8 @@ class StartProcessThread(QThread):
 
                 print("(total execute) time: ",time.time() - timer)
                 print('----------------------------------------------------------------')
-                self.parent().thresholdanim.start()
+        finally:
+            self.parent().animator.set_animation(r'D:\Desktop\Coding\Python\voice-assistant-projects\customized-assistant\ui\animations\threshold.tanim')
 
 class SocketConnection(QThread):
     def __init__(self,parent=None,rport : int = 4040,sport : int = 2020):

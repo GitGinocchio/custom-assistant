@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QSystemTrayIcon,QApplication,QMenu, QAction
 from PyQt5.QtGui import QIcon
 from QDialogs import CreateCommand,EditCommand,Settings
 from QThreads import JsonThread,ListenThread, SayThread, StartProcessThread, AiThread,TrainAiThread, SocketConnection
-from QAnimations import Animation,ThresholdAnimation
+from QAnimations import Animator
 import sys,os
 
 
@@ -37,13 +37,15 @@ class SystemTrayIcon(QSystemTrayIcon):
         #self.aitrain.start()
         #self.aitrain.trainaithreadsignal.connect(print)
 
-        self.loadinganim = Animation(self,'loading.anim',color=(0,255,0))
-        self.waveanim = Animation(self,'wave.anim',color=(0,255,0))
-        self.thresholdanim = ThresholdAnimation(self,'threshold.anim',color=(0,255,0),fn=self.listenthread.get_microphone_threshold,values=[0.007,0.01,0.03,0.05,0.07,0.1,0.3,0.5])
+        self.animator = Animator(anim=r'D:\Desktop\Coding\Python\voice-assistant-projects\customized-assistant\ui\animations\threshold.tanim',color=(0,255,0),function=self.listenthread.get_microphone_threshold,parent=self)
+        #self.loadinganim = Animation(self,'loading.anim',color=(0,255,0))
+        #self.waveanim = Animation(self,'wave.anim',color=(0,255,0))
+        #self.thresholdanim = ThresholdAnimation(self,'threshold.anim',color=(0,255,0),fn=self.listenthread.get_microphone_threshold,values=[0.007,0.01,0.03,0.05,0.07,0.1,0.3,0.5])
 
 
         self.socketserver.start()
         self.listenthread.start()
+        self.animator.start()
         self.saythread.start()
         self.listenthread.listenthreadsignal.connect(self.startprocessthread.process)
         self.show()
