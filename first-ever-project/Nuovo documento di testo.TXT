@@ -1,0 +1,114 @@
+# Importare le librerie necessarie
+import pandas as pd
+import nltk
+from nltk.stem import SnowballStemmer
+from nltk.corpus import stopwords
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+
+# Leggere il dataset da un file CSV
+df = pd.read_csv("dataset.csv")
+
+# Creare le liste di domande e risposte
+questions = df["question"].tolist()
+answers = df["answer"].tolist()
+
+# Preprocessare le domande e le risposte
+stemmer = SnowballStemmer("italian") # usare lo stemmer per l'italiano
+stop_words = stopwords.words("italian") # usare le stopwords per l'italiano
+vocab = set() # creare un insieme vuoto per il vocabolario
+
+# Definire una funzione per preprocessare una stringa
+def preprocess(string):
+  # Tokenizzare la stringa
+  tokens = nltk.word_tokenize(string)
+  # Stemmatizzare e rimuovere le stopwords dai token
+  tokens = [stemmer.stem(token) for token in tokens if token not in stop_words]
+  # Aggiornare il vocabolario con i token
+  vocab.update(tokens)
+  # Restituire i token come una stringa separata da spazi
+  return " ".join(tokens)
+
+# Applicare la funzione di preprocessamento alle domande e alle risposte
+questions = [preprocess(question) for question in questions]
+answers = [preprocess(answer) for answer in answers]
+
+# Trasformare le domande e le risposte in sequenze di interi
+tokenizer = Tokenizer(filters="") # creare un tokenizer senza filtri
+tokenizer.fit_on_texts(vocab) # adattare il tokenizer al vocabolario
+questions = tokenizer.texts_to_sequences(questions) # trasformare le domande in sequenze
+answers = tokenizer.texts_to_sequences(answers) # trasformare le risposte in sequenze
+
+# Aggiungere i token speciali per l'inizio e la fine delle sequenze
+start_token = len(vocab) + 1 # definire il token per l'inizio come l'ultimo indice del vocabolario + 1
+end_token = len(vocab) + 2 # definire il token per la fine come l'ultimo indice del vocabolario + 2
+questions = [[start_token] + question + [end_token] for question in questions] # aggiungere i token alle domande
+answers = [[start_token] + answer + [end_token] for answer in answers] # aggiungere i token alle risposte
+
+# Rendere le sequenze della stessa lunghezza, aggiungendo dei token di padding se necessario
+max_length = 20 # definire la lunghezza massima delle sequenze
+questions = pad_sequences(questions, maxlen=max_length, padding="post") # rendere le domande della stessa lunghezza
+answers = pad_sequences(answers, maxlen=max_length, padding="post") # rendere le risposte della stessa lunghezza
+
+
+
+
+#------------------------------------------------------------------------------------------------
+
+
+# Importare le librerie necessarie
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from tensorflow.keras.utils import to_categorical
+from sklearn.model_selection import train_test_split
+
+# Definire i parametri del modello
+vocab_size = 10000 # il numero di parole nel vocabolario
+embedding_dim = 256 # la dimensione dei vettori di embedding
+hidden_dim = 512 # il numero di unità nascoste o neuroni dello strato LSTM
+max_length = 20 # la lunghezza massima delle sequenze di input e output
+
+# Definire lo strato di embedding
+embedding_layer = layers.Embedding(input_dim=vocab_size, output_dim=embedding_dim)
+
+# Definire lo strato encoder
+encoder_inputs = layers.Input(shape=(None,))
+encoder_embeddings = embedding_layer(encoder_inputs)
+encoder_outputs, state_h, state_c = layers.LSTM(hidden_dim, return_state=True)(encoder_embeddings)
+encoder_states = [state_h, state_c]
+
+# Definire lo strato decoder
+decoder_inputs = layers.Input(shape=(None,))
+decoder_embeddings = embedding_layer(decoder_inputs)
+decoder_lstm = layers.LSTM(hidden_dim, return_sequences=True, return_state=True)
+decoder_outputs, _, _ = decoder_lstm(decoder_embeddings, initial_state=encoder_states)
+decoder_dense = layers.Dense(vocab_size, activation="softmax")
+decoder_outputs = decoder_dense(decoder_outputs)
+
+# Definire il modello seq2seq
+model = keras.Model([encoder_inputs, decoder_inputs], decoder_outputs)
+
+# Stampare il riassunto del modello
+model.summary()
+
+# Convertire le sequenze di output in vettori one-hot
+answers_one_hot = to_categorical(answers, num_classes=vocab_size)
+
+# Dividere i dati in set di training e validation
+X_train, X_val, y_train, y_val = train_test_split(questions, answers_one_hot, test_size=0.2)
+
+# Compilare il modello
+model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+
+# Addestrare il modello
+model.fit([X_train, y_train], y_train, epochs=10, batch_size=32, validation_data=([X_val, y_val], y_val))
+
+# Salvare il modello
+model.save("chatbot_model.h5")
+
+
+
+
+
+

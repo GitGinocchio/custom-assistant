@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Command</title>
+    <link rel="stylesheet" href="./add/style.css" type="text/css" />
+</head>
+<body>
+    <div class="container">
+        <form id="data" method="post" action="/add">
+            <label>Proprieta' comando:</label>
+            <br>
+            <br>
+            <div class="radio-container">
+                <input type="checkbox", id="enabled" name="enabled" value="True" checked>
+                <label for="enabled">Abilitato al salvataggio</label>
+
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="command-name">*Nome del comando:</label>
+                <input type="text" id="command-name" name="command-name" class='input-name' placeholder="Nome del comando" value="">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">*Descrizione:</label>
+                <textarea id="description" name="description" placeholder="Inserisci una breve descrizione del comando." value=""></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="patterns">*Modelli di frasi:</label>
+                <textarea id="patterns" name="patterns" placeholder="Inserisci i modelli di frasi separati da una nuova riga es. Che ore sono?" value=""></textarea>
+            </div>
+
+
+
+            <div class="form-group">
+                <label for="autorun">*Auto Esecuzione:</label>
+                <input type="text" id="autorun" name="autorun" class='input-name' placeholder="file .* che verra\' avviato all\'attivazione del comando" value="cmd.bat">
+            </div>
+
+            <div class="form-group">
+                <label for="args">Argomenti:</label>
+                <input type="text" id="args" name="args" class='input-name' placeholder="argomenti che verranno passati al file in auto esecuzione." value="">
+            </div>
+            
+            <div class="radio-container">
+                <input type="checkbox", id="shell" name="shell" value="False">
+                <label for="shell">Shell</label>
+            </div>
+
+
+            <div class="form-group">
+                <label for="instructions">Istruzioni:</label>
+                <textarea id="instructions" name="instructions" placeholder="Inserisci le istruzioni del file 'cmd.bat' che verranno eseguite" value=""></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pargs">Argomenti in esecuzione:</label>
+                <input type="text" id="pargs" name="pargs" class='input-name' placeholder="argomenti che verranno passati al file durante la sua esecuzione." value="">
+            </div>
+
+            
+
+            <div class="form-group">
+                <button type="submit"> Invia </button>
+            </div>
+        </form>
+    
+        <script>
+            document.getElementById("data").addEventListener("submit", function(event) {
+                var commandNameInput = document.getElementById("command-name");
+                var description = document.getElementById("description");
+                var patternsInput = document.getElementById("patterns");
+                var autorun = document.getElementById("autorun");
+                var instructionsInput = document.getElementById("instructions");
+                var invalidChars = /[\/;:\[\]()!@#$%^*]/g;
+
+                if (commandNameInput.value === "" || patternsInput.value === "" || autorun.value === "" || description.value === "") {
+                    event.preventDefault(); // Impedisce l'invio del modulo
+                    alert("Tutti i campi richiesti (*) devono essere compilati");
+                } else if (commandNameInput.value.match(invalidChars) || patternsInput.value.match(invalidChars)) {
+                    event.preventDefault(); // Impedisce l'invio del modulo
+                    alert("I caratteri speciali come / ; : [ ] ( ) ! @ # $ % ^ * sono accettati solo nelle istruzioni nel nome del comando!");}
+            });
+        </script>
+    </div>
+</body>
+</html>
+
+
+
+
