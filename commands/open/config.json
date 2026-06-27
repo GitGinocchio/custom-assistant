@@ -6,7 +6,13 @@
    "args": [],
    "patterns": [
       "apri",
+      "esegui",
+      "avvia",
       "potresti aprire",
-      "apriresti"
+      "potresti eseguire",
+      "potresti avviare",
+      "apriresti",
+      "avvieresti",
+      "eseguiresti"
    ]
 }

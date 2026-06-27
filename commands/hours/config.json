@@ -8,9 +8,15 @@
    "patterns": [
       "che ore sono", 
       "che ora è",
-      "ore",
-      "ora",
       "sapresti dirmi l'ora attuale",
-      "sapresti dirmi l'orario attuale"
+      "sapresti dirmi l'orario attuale",
+      "sapresti dirmi qual è l'ora attuale",
+      "sapresti dirmi qual è l'orario attuale",
+      "potresti dirmi l'ora attuale",
+      "potresti dirmi l'orario attuale",
+      "potresti dirmi qual è l'ora attuale",
+      "potresti dirmi qual è l'orario attuale",
+      "qual'è l'ora attuale",
+      "qual'è l'orario attuale"
    ]
 }

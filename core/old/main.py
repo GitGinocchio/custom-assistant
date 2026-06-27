@@ -98,7 +98,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
 
 if __name__ == '__main__':
-    os.chdir('..\\tools')
+    os.chdir("D:\\Desktop\\Coding\\Python\\voice-assistant-projects\\customized-assistant\\tools")
     # Specifica il percorso della directory che desideri aggiungere
     #os.environ["PATH"] = f"{os.environ.get('PATH', '')};D:\\Desktop\\Coding\\Python\\voice-assistant-projects\\customized-assistant\\tools"
     #print(os.environ["PATH"])
